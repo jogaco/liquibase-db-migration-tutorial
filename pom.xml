@@ -456,6 +456,75 @@
     </reporting>
 
     <profiles>
+        <!-- database diff -->
+        <profile>
+            <id>db-diff</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>buildnumber-maven-plugin</artifactId>
+                        <version>1.2</version>
+                        <configuration>
+                            <timestampFormat>yyyyMMdd_HHmmss</timestampFormat>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>create-timestamp</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.liquibase</groupId>
+                        <artifactId>liquibase-maven-plugin</artifactId>
+                        <version>2.0.5</version>
+                        <executions>
+                            <execution>
+                                <id>generate-db-prev</id>
+                                <phase>process-resources</phase>
+                                <configuration>
+                                    <skip>${skipLiquibase}</skip>
+                                    <propertyFile>target/classes/liquibase.properties</propertyFile>
+                                    <changeLogFile>target/classes/db/db.changelog.xml</changeLogFile>
+                                    <dropFirst>true</dropFirst>
+                                    <logging>info</logging>
+                                    <verbose>true</verbose>
+                                </configuration>
+                                <goals>
+                                    <goal>update</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>generate-db-diff</id>
+                                <phase>process-test-resources</phase>
+                                <configuration>
+                                    <skip>${skipLiquibase}</skip>
+                                    <propertyFile>target/classes/liquibase-diff.properties</propertyFile>
+                                    <diffChangeLogFile>src/main/resources/db/db-${timestamp}.changelog.xml</diffChangeLogFile>
+                                    <dropFirst>false</dropFirst>
+                                    <logging>info</logging>
+                                    <verbose>true</verbose>
+                                </configuration>
+                                <goals>
+                                    <goal>diff</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <dependencies>
+                            <dependency>
+                                <groupId>${jdbc.groupId}</groupId>
+                                <artifactId>${jdbc.artifactId}</artifactId>
+                                <version>${jdbc.version}</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>integration-test</id>
             <activation>
@@ -716,6 +785,7 @@
         <jdbc.version>5.1.21</jdbc.version>
         <jdbc.driverClassName>com.mysql.jdbc.Driver</jdbc.driverClassName>
         <jdbc.url>jdbc:mysql://localhost/${db.name}?createDatabaseIfNotExist=true&amp;amp;useUnicode=true&amp;amp;characterEncoding=utf-8&amp;amp;autoReconnect=true</jdbc.url>
+        <jdbc.url.prev>jdbc:mysql://localhost/${db.name}_prev?createDatabaseIfNotExist=true&amp;amp;useUnicode=true&amp;amp;characterEncoding=utf-8&amp;amp;autoReconnect=true</jdbc.url.prev>
         <jdbc.username>root</jdbc.username>
         <jdbc.password></jdbc.password>
     </properties>
