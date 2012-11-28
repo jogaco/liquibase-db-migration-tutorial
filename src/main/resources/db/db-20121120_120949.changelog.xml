@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+    <changeSet author="jgarcia (generated)" id="20121120_120949">
+        <createTable tableName="app_user">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="account_expired" type="BIT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="account_locked" type="BIT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="address" type="VARCHAR(150)"/>
+            <column name="city" type="VARCHAR(50)"/>
+            <column name="country" type="VARCHAR(100)"/>
+            <column name="postal_code" type="VARCHAR(15)"/>
+            <column name="province" type="VARCHAR(100)"/>
+            <column name="credentials_expired" type="BIT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="account_enabled" type="BIT"/>
+            <column name="first_name" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_name" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password_hint" type="VARCHAR(255)"/>
+            <column name="phone_number" type="VARCHAR(255)"/>
+            <column name="username" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="INT"/>
+            <column name="website" type="VARCHAR(255)"/>
+        </createTable>
+        <createTable tableName="role">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="description" type="VARCHAR(64)"/>
+            <column name="name" type="VARCHAR(20)"/>
+        </createTable>
+        <createTable tableName="user_role">
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="user_id, role_id" tableName="user_role"/>
+        <addForeignKeyConstraint baseColumnNames="role_id" baseTableName="user_role" baseTableSchemaName="migration" constraintName="FK143BF46A4FD90D75" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="role" referencedTableSchemaName="migration" referencesUniqueColumn="false"/>
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="user_role" baseTableSchemaName="migration" constraintName="FK143BF46AF503D155" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="app_user" referencedTableSchemaName="migration" referencesUniqueColumn="false"/>
+        <createIndex indexName="email" tableName="app_user" unique="true">
+            <column name="email"/>
+        </createIndex>
+        <createIndex indexName="username" tableName="app_user" unique="true">
+            <column name="username"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

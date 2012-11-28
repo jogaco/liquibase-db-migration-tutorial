@@ -6,8 +6,8 @@
     <artifactId>migration</artifactId>
     <packaging>war</packaging>
     <version>1.0-SNAPSHOT</version>
-    <name>AppFuse Spring MVC Application</name>
-    <url>http://www.mycompany.com</url>
+    <name>AppFuse Spring MVC Application with Liquibase DB Migration</name>
+    <url>http://operatornew.com</url>
 
     <prerequisites>
         <maven>2.2.1</maven>
@@ -43,6 +43,23 @@
     <build>
         <defaultGoal>install</defaultGoal>
         <plugins>
+            <plugin>
+                <!-- Set timestamp in a variable so it can be used for generated files by liquibase in different goals -->
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <version>1.2</version>
+                <configuration>
+                    <timestampFormat>yyyyMMdd_HHmmss</timestampFormat>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>create-timestamp</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.appfuse.plugins</groupId>
                 <artifactId>appfuse-maven-plugin</artifactId>
@@ -150,6 +167,27 @@
                         <version>${jdbc.version}</version>
                     </dependency>
                 </dependencies>
+            </plugin>
+            <plugin>
+                <!-- mark database as up-to-date -->
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <version>2.0.5</version>
+                <executions>
+                    <execution>
+                        <id>mark-db-up-to-date</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>changelogSync</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skipTests}</skip>
+                            <propertyFile>target/classes/liquibase.properties</propertyFile>
+                            <changeLogFile>target/classes/db/db.changelog.xml</changeLogFile>
+                            <verbose>true</verbose>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.mortbay.jetty</groupId>
@@ -397,6 +435,17 @@
             <version>${wiser.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>2.0.5</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
 
     <reporting>
@@ -456,27 +505,13 @@
     </reporting>
 
     <profiles>
-        <!-- database diff -->
+        <!-- ============================================================================================ -->
+        <!-- Generate database diff with liquibase, based on previously registered liquibase db changelog -->
+        <!-- ============================================================================================ -->
         <profile>
             <id>db-diff</id>
             <build>
                 <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>buildnumber-maven-plugin</artifactId>
-                        <version>1.2</version>
-                        <configuration>
-                            <timestampFormat>yyyyMMdd_HHmmss</timestampFormat>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <phase>validate</phase>
-                                <goals>
-                                    <goal>create-timestamp</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
                     <plugin>
                         <groupId>org.liquibase</groupId>
                         <artifactId>liquibase-maven-plugin</artifactId>
@@ -521,10 +556,94 @@
                             </dependency>
                         </dependencies>
                     </plugin>
-
                 </plugins>
             </build>
         </profile>
+        <!-- ============================================================================================ -->
+        <!-- Generate database data changelog for liquibase (run previously mvn -Pprod test-compile 
+                if you want to generate changelog for production data)                                    -->
+        <!-- ============================================================================================ -->
+        <profile>
+            <id>db-data</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>  
+                        <artifactId>exec-maven-plugin</artifactId>  
+                        <version>1.2.1</version>
+                        <executions>
+                            <execution>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>liquibase.integration.commandline.Main</mainClass>
+                                    <includePluginDependencies>true</includePluginDependencies>
+                                    <arguments>  
+                                        <argument>--driver=${jdbc.driverClassName}</argument>
+                                        <argument>--changeLogFile=src/main/resources/db/db-data-${timestamp}.changelog.xml</argument>
+                                        <argument>--url=${jdbc.url}</argument>
+                                        <argument>--username=${jdbc.username}</argument>
+                                        <argument>--password=${jdbc.password}</argument>
+                                        <argument>--diffTypes=data</argument>
+                                        <argument>--logLevel=info</argument>
+                                        <argument>generateChangeLog</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                        <dependencies>
+                            <dependency>
+                                <groupId>${jdbc.groupId}</groupId>
+                                <artifactId>${jdbc.artifactId}</artifactId>
+                                <version>${jdbc.version}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.liquibase</groupId>
+                                <artifactId>liquibase-maven-plugin</artifactId>
+                                <version>2.0.5</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <!-- ========================================================================================================== -->
+        <!-- Test db migration by dropping database, skipping hbm2ddl and dbunit, so that all the db migrations are run -->
+        <!-- ========================================================================================================== -->
+        <profile>
+            <id>db-test</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <!-- mark database as up-to-date -->
+                        <groupId>org.liquibase</groupId>
+                        <artifactId>liquibase-maven-plugin</artifactId>
+                        <version>2.0.5</version>
+                        <executions>
+                            <execution>
+                                <id>drop-db</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>dropAll</goal>
+                                </goals>
+                                <configuration>
+                                    <propertyFile>target/classes/liquibase.properties</propertyFile>
+                                    <changeLogFile>target/classes/db/db.changelog.xml</changeLogFile>
+                                    <verbose>true</verbose>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            <properties>
+                <!-- avoid generating db schema + inserting db-unit -->
+                <skipTests>true</skipTests>
+            </properties>
+        </profile>
+
         <profile>
             <id>integration-test</id>
             <activation>
