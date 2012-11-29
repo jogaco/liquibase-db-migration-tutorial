@@ -817,7 +817,7 @@
                                 <phase>process-resources</phase>
                                 <configuration>
                                     <skip>${skipLiquibase}</skip>
-                                    <propertyFile>target/classes/liquibase.properties</propertyFile>
+                                    <propertyFile>target/classes/liquibase-diff.properties</propertyFile>
                                     <changeLogFile>target/classes/db/db.changelog.xml</changeLogFile>
                                     <dropFirst>true</dropFirst>
                                     <logging>info</logging>

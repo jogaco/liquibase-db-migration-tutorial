@@ -56,8 +56,8 @@
             </column>
         </createTable>
         <addPrimaryKey columnNames="user_id, role_id" tableName="user_role"/>
-        <addForeignKeyConstraint baseColumnNames="role_id" baseTableName="user_role" baseTableSchemaName="migration" constraintName="FK143BF46A4FD90D75" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="role" referencedTableSchemaName="migration" referencesUniqueColumn="false"/>
-        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="user_role" baseTableSchemaName="migration" constraintName="FK143BF46AF503D155" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="app_user" referencedTableSchemaName="migration" referencesUniqueColumn="false"/>
+        <addForeignKeyConstraint baseColumnNames="role_id" baseTableName="user_role" constraintName="FK143BF46A4FD90D75" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="role" referencesUniqueColumn="false"/>
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="user_role" constraintName="FK143BF46AF503D155" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="app_user" referencesUniqueColumn="false"/>
         <createIndex indexName="email" tableName="app_user" unique="true">
             <column name="email"/>
         </createIndex>
