@@ -169,11 +169,26 @@
                 </dependencies>
             </plugin>
             <plugin>
-                <!-- mark database as up-to-date -->
                 <groupId>org.liquibase</groupId>
                 <artifactId>liquibase-maven-plugin</artifactId>
-                <version>2.0.5</version>
+                <version>${liquibase.version}</version>
                 <executions>
+                    <!-- drop db before generating schema with hbm2ddl to avoid any 
+                        inconsistencies between changelog files and DATABASECHANGELOG table -->
+                    <execution>
+                        <id>drop-db</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>dropAll</goal>
+                        </goals>
+                        <configuration>
+                            <propertyFile>target/classes/liquibase.properties</propertyFile>
+                            <changeLogFile>target/classes/db/db.changelog.xml</changeLogFile>
+                            <verbose>true</verbose>
+                        </configuration>
+                    </execution>
+                    <!-- mark db up-to-date in the  DATABASECHANGELOG table after generating 
+                        schema with hbm2ddl so that no migration is executed -->
                     <execution>
                         <id>mark-db-up-to-date</id>
                         <phase>test-compile</phase>
@@ -567,7 +582,7 @@
         <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
-            <version>2.0.5</version>
+            <version>${liquibase.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>servlet-api</artifactId>
@@ -810,7 +825,7 @@
                     <plugin>
                         <groupId>org.liquibase</groupId>
                         <artifactId>liquibase-maven-plugin</artifactId>
-                        <version>2.0.5</version>
+                        <version>${liquibase.version}</version>
                         <executions>
                             <execution>
                                 <id>generate-db-prev</id>
@@ -897,7 +912,7 @@
                             <dependency>
                                 <groupId>org.liquibase</groupId>
                                 <artifactId>liquibase-maven-plugin</artifactId>
-                                <version>2.0.5</version>
+                                <version>${liquibase.version}</version>
                             </dependency>
                         </dependencies>
                     </plugin>
@@ -915,7 +930,7 @@
                         <!-- mark database as up-to-date -->
                         <groupId>org.liquibase</groupId>
                         <artifactId>liquibase-maven-plugin</artifactId>
-                        <version>2.0.5</version>
+                        <version>${liquibase.version}</version>
                         <executions>
                             <execution>
                                 <id>drop-db</id>
@@ -1225,6 +1240,7 @@
         <struts.menu.version>2.4.3</struts.menu.version>
         <urlrewrite.version>3.1.0</urlrewrite.version>
         <velocity.version>1.4</velocity.version>
+        <liquibase.version>2.0.5</liquibase.version>
 
     </properties>
 </project>

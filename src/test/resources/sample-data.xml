@@ -20,6 +20,7 @@
         <column>account_expired</column>
         <column>account_locked</column>
         <column>credentials_expired</column>
+        <column>signup_date</column>
         <row>
             <value description="id">-1</value>
             <value description="username">user</value>
@@ -40,6 +41,7 @@
             <value description="account_expired">0</value>
             <value description="account_locked">0</value>
             <value description="credentials_expired">0</value>
+            <value description="signup_date">2012-11-25</value>
         </row>
         <row>
             <value description="id">-2</value>
@@ -61,6 +63,7 @@
             <value description="account_expired">0</value>
             <value description="account_locked">0</value>
             <value description="credentials_expired">0</value>
+            <value description="signup_date">2012-11-29</value>
         </row>
     </table>
     <table name="role">
