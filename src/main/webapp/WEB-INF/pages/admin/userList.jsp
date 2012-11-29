@@ -40,6 +40,7 @@
             <input type="checkbox" disabled="disabled" <c:if test="${users.enabled}">checked="checked"</c:if>/>
         </display:column>
         <display:column property="enabled" titleKey="user.enabled" media="csv xml excel pdf"/>
+        <display:column property="signupDate" sortable="true" titleKey="user.signupDate"/>
 
         <display:setProperty name="paging.banner.item_name" value="user"/>
         <display:setProperty name="paging.banner.items_name" value="users"/>

@@ -5,6 +5,7 @@ import com.mycompany.model.User;
 import com.mycompany.service.UserExistsException;
 import com.mycompany.service.UserManager;
 import com.mycompany.service.UserService;
+import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.jpa.JpaSystemException;
@@ -60,6 +61,7 @@ public class UserManagerImpl extends GenericManagerImpl<User, Long> implements U
         if (user.getVersion() == null) {
             // if new user, lowercase userId
             user.setUsername(user.getUsername().toLowerCase());
+            user.setSignupDate(new Date());
         }
 
         // Get and prepare password management-related artifacts
