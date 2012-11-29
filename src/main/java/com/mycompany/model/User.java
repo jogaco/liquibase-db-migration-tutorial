@@ -22,10 +22,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import javax.persistence.Temporal;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
@@ -65,6 +67,7 @@ public class User extends BaseObject implements Serializable, UserDetails {
     private boolean accountExpired;
     private boolean accountLocked;
     private boolean credentialsExpired;
+    private Date signupDate;
 
     /**
      * Default constructor - creates a new instance with no values set.
@@ -139,6 +142,17 @@ public class User extends BaseObject implements Serializable, UserDetails {
     public String getWebsite() {
         return website;
     }
+
+    @Column(name="signup_date")
+    @Temporal(javax.persistence.TemporalType.DATE)
+    public Date getSignupDate() {
+        return signupDate;
+    }
+
+    public void setSignupDate(Date signupDate) {
+        this.signupDate = signupDate;
+    }
+
 
     /**
      * Returns the full name.
