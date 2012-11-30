@@ -1,3 +1,12 @@
+================================================================================
+             Liquibase Automatic DB migration for Java Web Apps
+================================================================================
+See here for more info:
+
+http://www.operatornew.com/2012/11/automatic-db-migration-for-java-web.html
+
+
+
 AppFuse Basic Spring MVC Archetype
 --------------------------------------------------------------------------------
 If you're reading this then you've created your new project using Maven and
