@@ -172,6 +172,11 @@
                 <groupId>org.liquibase</groupId>
                 <artifactId>liquibase-maven-plugin</artifactId>
                 <version>${liquibase.version}</version>
+                <configuration>
+                    <skip>${skipTests}</skip>
+                    <propertyFile>target/classes/liquibase.properties</propertyFile>
+                    <changeLogFile>target/classes/db/db.changelog.xml</changeLogFile>
+                </configuration>
                 <executions>
                     <!-- drop db before generating schema with hbm2ddl to avoid any 
                         inconsistencies between changelog files and DATABASECHANGELOG table -->
@@ -184,7 +189,6 @@
                         <configuration>
                             <propertyFile>target/classes/liquibase.properties</propertyFile>
                             <changeLogFile>target/classes/db/db.changelog.xml</changeLogFile>
-                            <verbose>true</verbose>
                         </configuration>
                     </execution>
                     <!-- mark db up-to-date in the  DATABASECHANGELOG table after generating 
@@ -195,12 +199,6 @@
                         <goals>
                             <goal>changelogSync</goal>
                         </goals>
-                        <configuration>
-                            <skip>${skipTests}</skip>
-                            <propertyFile>target/classes/liquibase.properties</propertyFile>
-                            <changeLogFile>target/classes/db/db.changelog.xml</changeLogFile>
-                            <verbose>true</verbose>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -826,33 +824,26 @@
                         <groupId>org.liquibase</groupId>
                         <artifactId>liquibase-maven-plugin</artifactId>
                         <version>${liquibase.version}</version>
+                        <configuration>
+                            <propertyFile>target/classes/liquibase-diff.properties</propertyFile>
+                            <changeLogFile>target/classes/db/db.changelog.xml</changeLogFile>
+                            <diffChangeLogFile>src/main/resources/db/db-${timestamp}.changelog.xml</diffChangeLogFile>
+                            <logging>info</logging>
+                        </configuration>
                         <executions>
                             <execution>
                                 <id>generate-db-prev</id>
                                 <phase>process-resources</phase>
-                                <configuration>
-                                    <skip>${skipLiquibase}</skip>
-                                    <propertyFile>target/classes/liquibase-diff.properties</propertyFile>
-                                    <changeLogFile>target/classes/db/db.changelog.xml</changeLogFile>
-                                    <dropFirst>true</dropFirst>
-                                    <logging>info</logging>
-                                    <verbose>true</verbose>
-                                </configuration>
                                 <goals>
                                     <goal>update</goal>
                                 </goals>
+                                <configuration>
+                                    <dropFirst>true</dropFirst>
+                                </configuration>
                             </execution>
                             <execution>
                                 <id>generate-db-diff</id>
                                 <phase>process-test-resources</phase>
-                                <configuration>
-                                    <skip>${skipLiquibase}</skip>
-                                    <propertyFile>target/classes/liquibase-diff.properties</propertyFile>
-                                    <diffChangeLogFile>src/main/resources/db/db-${timestamp}.changelog.xml</diffChangeLogFile>
-                                    <dropFirst>false</dropFirst>
-                                    <logging>info</logging>
-                                    <verbose>true</verbose>
-                                </configuration>
                                 <goals>
                                     <goal>diff</goal>
                                 </goals>
@@ -918,6 +909,10 @@
                     </plugin>
                 </plugins>
             </build>
+            <properties>
+                <!-- avoid generating db schema + inserting db-unit -->
+                <skipTests>true</skipTests>
+            </properties>
         </profile>
         <!-- ========================================================================================================== -->
         <!-- Test db migration by dropping database, skipping hbm2ddl and dbunit, so that all the db migrations are run -->
@@ -927,7 +922,6 @@
             <build>
                 <plugins>
                     <plugin>
-                        <!-- mark database as up-to-date -->
                         <groupId>org.liquibase</groupId>
                         <artifactId>liquibase-maven-plugin</artifactId>
                         <version>${liquibase.version}</version>
@@ -940,8 +934,7 @@
                                 </goals>
                                 <configuration>
                                     <propertyFile>target/classes/liquibase.properties</propertyFile>
-                                    <changeLogFile>target/classes/db/db.changelog.xml</changeLogFile>
-                                    <verbose>true</verbose>
+                                    <skip>false</skip>
                                 </configuration>
                             </execution>
                         </executions>

@@ -3,4 +3,4 @@
     <include file="db/db-20121120_120949.changelog.xml" />
     <include file="db/db-data-20121128_170043.changelog.xml" />
     <include file="db/db-20121129_093229.changelog.xml" />
- </databaseChangeLog>
+</databaseChangeLog>
